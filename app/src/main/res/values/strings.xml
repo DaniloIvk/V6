@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">Assignment #6</string>
+    <string name="students_title">Students</string>
+    <string name="courses_title">Courses</string>
+    <string name="top_students_title">Top 3 students</string>
+    <string name="database_exists">Database already exists!</string>
+    <string name="context_null">Provided context has null value!</string>
+    <!-- Model fields -->
+    <string name="id">ID</string>
+    <string name="name">Name</string>
+    <string name="age">Age</string>
+    <string name="department">Department</string>
+    <string name="gpa">GPA</string>
+    <string name="linked_student">Student</string>
+    <!-- Buttons, labels -->
+    <string name="add_student">Add student</string>
+    <string name="add_course">Add course</string>
+    <string name="show_top_students">Show top 3</string>
+    <string name="show_all">Show all</string>
+    <string name="reset">Reset</string>
+</resources>

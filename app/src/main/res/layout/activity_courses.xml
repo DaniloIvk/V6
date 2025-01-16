@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/sword_gray"
+    android:theme="@style/Theme.Material3.DynamicColors.Dark.NoActionBar"
+    tools:context=".CoursesActivity">
+
+    <TextView
+        android:id="@+id/page_title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/partial_black"
+        android:gravity="center"
+        android:paddingVertical="10dp"
+        android:text="@string/courses_title"
+        android:textAlignment="gravity"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/course_name_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginBottom="8dp"
+        android:gravity="end|center_vertical"
+        android:minWidth="140dp"
+        android:paddingHorizontal="16sp"
+        android:paddingVertical="10dp"
+        android:text="@string/name"
+        android:textAlignment="gravity"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toStartOf="@+id/course_name"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/page_title" />
+
+    <EditText
+        android:id="@+id/course_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="24dp"
+        android:autofillHints="name"
+        android:hint="@string/name"
+        android:inputType="text"
+        android:minHeight="48dp"
+        android:padding="8dp"
+        android:textColor="@color/cloud_white"
+        android:textColorHint="@color/cloud_gray"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/course_name_label"
+        app:layout_constraintTop_toBottomOf="@id/page_title"
+        app:layout_constraintWidth_max="320dp"
+        tools:ignore="DuplicateSpeakableTextCheck" />
+
+    <TextView
+        android:id="@+id/linked_student_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:gravity="end|center_vertical"
+        android:minWidth="140dp"
+        android:paddingHorizontal="16sp"
+        android:paddingVertical="10dp"
+        android:text="@string/linked_student"
+        android:textAlignment="gravity"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toStartOf="@+id/course_name"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/course_name_label" />
+
+    <Spinner
+        android:id="@+id/linked_student"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:minHeight="48dp"
+        android:padding="8dp"
+        android:popupBackground="@color/stone_gray"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/linked_student_label"
+        app:layout_constraintTop_toBottomOf="@id/course_name" />
+
+    <Button
+        android:id="@+id/add_course"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginTop="16dp"
+        android:padding="8dp"
+        android:text="@string/add_course"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/linked_student" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/courses"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/add_course" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
