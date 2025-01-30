@@ -5,7 +5,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.widget.Toast;
 
-import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 
 import org.jetbrains.annotations.NotNull;
@@ -23,16 +22,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static String DATABASE_PATH = "";
     private final Context context;
 
-    public DatabaseHelper(@Nullable Context context) throws Exception {
+    public DatabaseHelper(@NotNull Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
 
         this.context = context;
-
-        if (context == null) {
-            Toast.makeText(null, R.string.context_null, Toast.LENGTH_LONG).show();
-
-            return;
-        }
 
         DatabaseHelper.DATABASE_PATH = context.getFilesDir().getPath() + "/" + DATABASE_NAME;
     }
@@ -59,9 +52,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             OutputStream outputStream = new FileOutputStream(DATABASE_PATH);
 
             byte[] buffer = new byte[1024];
-            int length;
 
-            while ((length = inputStream.read(buffer)) > 0) {
+            for (int length; (length = inputStream.read(buffer)) > 0; ) {
                 outputStream.write(buffer, 0, length);
             }
 

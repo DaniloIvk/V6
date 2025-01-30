@@ -3,8 +3,14 @@
     <string name="students_title">Students</string>
     <string name="courses_title">Courses</string>
     <string name="top_students_title">Top 3 students</string>
+    <!-- Toasts -->
     <string name="database_exists">Database already exists!</string>
     <string name="context_null">Provided context has null value!</string>
+    <string name="error_opening_database">Error opening database!</string>
+    <string name="all_fields_required">All input fields are required.</string>
+    <string name="student_added_successfully">Student added successfully!</string>
+    <string name="age_or_gpa_not_a_number">Age and GPA must be valid numbers!</string>
+    <string name="fields_reset">Fields reset!</string>
     <!-- Model fields -->
     <string name="id">ID</string>
     <string name="name">Name</string>

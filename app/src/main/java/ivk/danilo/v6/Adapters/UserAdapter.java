@@ -11,13 +11,13 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
-import ivk.danilo.v6.Models.User;
+import ivk.danilo.v6.Models.Base.Model;
 import ivk.danilo.v6.R;
 
 public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder> {
-    private List<User> users;
+    private List<Model> users;
 
-    public UserAdapter(List<User> users) {
+    public UserAdapter(List<Model> users) {
         this.users = users;
     }
 
@@ -30,7 +30,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull UserViewHolder holder, int position) {
-        User user = users.get(position);
+        Model user = users.get(position);
         holder.bind(user);
     }
 
@@ -40,7 +40,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    public void updateData(List<User> newUsers) {
+    public void updateData(List<Model> newUsers) {
         this.users = newUsers;
         notifyDataSetChanged();
     }
@@ -59,11 +59,11 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
             userGpa = itemView.findViewById(R.id.student_gpa);
         }
 
-        public void bind(User user) {
-            userName.setText(user.name);
-            userAge.setText(String.valueOf(user.age));
-            userDepartment.setText(user.department);
-            userGpa.setText(String.valueOf(user.gpa));
+        public void bind(@NonNull Model user) {
+            userName.setText(user.getAttribute("name").toString());
+            userAge.setText(user.getAttribute("age").toString());
+            userDepartment.setText(user.getAttribute("department").toString());
+            userGpa.setText(user.getAttribute("gpa").toString());
         }
     }
 }
