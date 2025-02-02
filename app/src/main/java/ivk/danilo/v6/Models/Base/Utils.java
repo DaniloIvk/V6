@@ -6,7 +6,8 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 public final class Utils {
-    public static final String DEFAULT_SORTABLE_OPTION = "Default";
+    public static final String DEFAULT_OPTION = "Default";
+    public static final int DEFAULT_OPTION_POSITION = 0;
 
     @NotNull
     @Contract("_ -> new")
@@ -31,7 +32,7 @@ public final class Utils {
         int optionsLength = options.length;
         String[] sortableOptions = new String[2 * optionsLength + 1];
 
-        sortableOptions[0] = DEFAULT_SORTABLE_OPTION;
+        sortableOptions[DEFAULT_OPTION_POSITION] = DEFAULT_OPTION;
 
         int i = 1;
         for (String option : options) {
@@ -42,8 +43,23 @@ public final class Utils {
         return sortableOptions;
     }
 
+    @NotNull
+    @Contract("_ -> new")
+    public static String[] createOptions(@NotNull String... options) {
+        String[] sortableOptions = new String[1 + options.length];
+
+        sortableOptions[DEFAULT_OPTION_POSITION] = DEFAULT_OPTION;
+
+        int i = 1;
+        for (String option : options) {
+            sortableOptions[i++] = option;
+        }
+
+        return sortableOptions;
+    }
+
     @Contract(pure = true)
-    public static boolean isDefaultSortableOption(@NonNull String option) {
-        return option.equals(DEFAULT_SORTABLE_OPTION);
+    public static boolean isDefaultOption(@NonNull String option) {
+        return option.equals(DEFAULT_OPTION);
     }
 }

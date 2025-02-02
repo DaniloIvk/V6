@@ -243,12 +243,11 @@
         android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"
         android:foregroundGravity="left|center_vertical"
-        android:gravity="center"
+        android:gravity="start|center_vertical"
         android:text="@string/sort_by"
-        android:textAlignment="center"
         android:textSize="16sp"
         app:layout_constraintEnd_toStartOf="@id/sort_by"
-        app:layout_constraintHorizontal_weight="0.2"
+        app:layout_constraintHorizontal_weight="0.3"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/show_all_users" />
 
@@ -259,13 +258,42 @@
         android:layout_marginHorizontal="24dp"
         android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"
-        android:foregroundGravity="right|center_vertical"
-        android:textAlignment="center"
+        android:gravity="end|center_vertical"
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_weight="0.8"
+        app:layout_constraintHorizontal_weight="0.7"
         app:layout_constraintStart_toEndOf="@id/sort_by_label"
         app:layout_constraintTop_toBottomOf="@id/show_all_users" />
+
+    <TextView
+        android:id="@+id/department_filter_label"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:foregroundGravity="left|center_vertical"
+        android:gravity="start|center_vertical"
+        android:text="@string/department_filter"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toStartOf="@id/department_filter"
+        app:layout_constraintHorizontal_weight="0.3"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/sort_by_label" />
+
+    <Spinner
+        android:id="@+id/department_filter"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:gravity="end|center_vertical"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_weight="0.7"
+        app:layout_constraintStart_toEndOf="@id/department_filter_label"
+        app:layout_constraintTop_toBottomOf="@id/sort_by_label" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/students"
@@ -277,6 +305,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/sort_by_label" />
+        app:layout_constraintTop_toBottomOf="@id/department_filter_label" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

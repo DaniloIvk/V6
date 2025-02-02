@@ -421,6 +421,7 @@ public final class QueryBuilder implements Queryable {
 
         return this;
     }
+    // </editor-fold> Limit clause functions
 
     // <editor-fold desc="CRUD functions">
     @NotNull
@@ -458,7 +459,6 @@ public final class QueryBuilder implements Queryable {
 
         return this.model.get();
     }
-    // </editor-fold> CRUD functions
 
     @Contract(pure = true)
     public void delete() {
@@ -468,6 +468,41 @@ public final class QueryBuilder implements Queryable {
 
         this.model.delete();
     }
+
+    @NotNull
+    @Contract(pure = true)
+    public String[] pluck(@NotNull String column) {
+        if (this.model == null) {
+            return new String[]{};
+        }
+
+        this.model.setQueryBuilder(this);
+
+        return this.model.pluck(column);
+    }
+    // </editor-fold> CRUD functions
+
+    // <editor-fold desc="When functions">
+    @NotNull
+    @Contract("_, _, -> this")
+    public QueryBuilder whenWhere(@NotNull Boolean condition, @NotNull Queryable query) {
+        if (!condition) {
+            return this;
+        }
+
+        return this.where(query);
+    }
+
+    @NotNull
+    @Contract("_, _, -> this")
+    public QueryBuilder whenHaving(@NotNull Boolean condition, @NotNull Queryable query) {
+        if (!condition) {
+            return this;
+        }
+
+        return this.having(query);
+    }
+    // </editor-fold> When functions
 
     // <editor-fold desc="Helper functions">
     @NotNull

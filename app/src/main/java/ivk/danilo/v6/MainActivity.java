@@ -16,8 +16,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import ivk.danilo.v6.Adapters.UserAdapter;
@@ -28,13 +28,16 @@ import ivk.danilo.v6.Models.User;
 
 public class MainActivity extends AppCompatActivity {
     private String databasePath = null;
+    private List<Model> students = new ArrayList<>();
     private String sortByColumn = User.getPrimaryKey();
     private String sortByDirection = "ASC";
+    private String departmentFilter = Utils.DEFAULT_OPTION;
     private EditText studentNameEditText = null;
     private EditText studentAgeEditText = null;
     private EditText studentGpaEditText = null;
     private Spinner studentDepartmentSpinner = null;
     private Spinner sortBySpinner = null;
+    private Spinner departmentFilterSpinner = null;
     private Button addStudentButton = null;
     private Button showAllStudentsButton = null;
     private Button showTopStudentsButton = null;
@@ -42,7 +45,6 @@ public class MainActivity extends AppCompatActivity {
     private UserAdapter userAdapter = null;
     private RecyclerView usersRecyclerView = null;
 
-    @SuppressLint("NotifyDataSetChanged")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,10 +58,10 @@ public class MainActivity extends AppCompatActivity {
         try {
             this.usersRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-            List<Model> users = User.query(this.databasePath)
-                                    .get();
+            this.students = User.query(this.databasePath)
+                                .get();
 
-            this.userAdapter = new UserAdapter(users);
+            this.userAdapter = new UserAdapter(this.students);
 
             this.usersRecyclerView.setAdapter(this.userAdapter);
 
@@ -77,6 +79,7 @@ public class MainActivity extends AppCompatActivity {
 
         this.initializeStudentDepartmentSpinner();
         this.initializeSortBySpinner();
+        this.initializeDepartmentFilterSpinner();
     }
 
     private void initializeViews() {
@@ -91,6 +94,7 @@ public class MainActivity extends AppCompatActivity {
         this.resetInputFieldsButton = findViewById(R.id.reset_fields);
 
         this.sortBySpinner = findViewById(R.id.sort_by);
+        this.departmentFilterSpinner = findViewById(R.id.department_filter);
         this.usersRecyclerView = findViewById(R.id.students);
     }
 
@@ -121,40 +125,40 @@ public class MainActivity extends AppCompatActivity {
 
                 Toast.makeText(this, R.string.student_added_successfully, Toast.LENGTH_SHORT).show();
 
-                this.updateUserList(null);
+                this.updateUserList(true);
             } catch (NumberFormatException e) {
-                Toast.makeText(this, R.string.age_or_gpa_not_a_number, Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.age_or_gpa_not_a_number, Toast.LENGTH_LONG).show();
             } finally {
                 this.resetInputFields();
             }
         });
     }
 
-    @SuppressLint("NotifyDataSetChanged")
     private void initializeShowAllStudentsButton() {
         this.showAllStudentsButton.setOnClickListener(v -> {
             try {
-                this.updateUserList(null);
+                this.departmentFilter = Utils.DEFAULT_OPTION;
+
+                this.departmentFilterSpinner.setSelection(Utils.DEFAULT_OPTION_POSITION);
+
+                this.updateUserList(true);
             } catch (Exception exception) {
-                Toast.makeText(this, exception.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, exception.getMessage(), Toast.LENGTH_LONG).show();
             }
         });
     }
 
-    @SuppressLint("NotifyDataSetChanged")
     private void initializeTopStudentsButton() {
         this.showTopStudentsButton.setOnClickListener(v -> {
             try {
-                List<Model> topStudents = User.query(this.databasePath)
-                                              .orderByDesc("gpa")
-                                              .limit(3)
-                                              .get();
+                this.students = User.query(this.databasePath)
+                                    .orderByDesc("gpa")
+                                    .limit(3)
+                                    .get();
 
-                this.userAdapter.updateData(topStudents);
-                this.userAdapter.notifyDataSetChanged();
-                this.usersRecyclerView.setAdapter(this.userAdapter);
+                this.updateUserList(false);
             } catch (Exception exception) {
-                Toast.makeText(this, exception.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, exception.getMessage(), Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -193,20 +197,50 @@ public class MainActivity extends AppCompatActivity {
         this.sortBySpinner.setAdapter(adapter);
 
         this.sortBySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @SuppressLint("NotifyDataSetChanged")
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
-                String option = options[position];
+                String sortBy = options[position];
 
-                if (Utils.isDefaultSortableOption(option)) {
+                if (Utils.isDefaultOption(sortBy)) {
                     sortByColumn = User.getPrimaryKey();
                     sortByDirection = "ASC";
                 } else {
-                    sortByColumn = Utils.getSortableColumn(option);
-                    sortByDirection = Utils.getSortableOrder(option);
+                    sortByColumn = Utils.getSortableColumn(sortBy);
+                    sortByDirection = Utils.getSortableOrder(sortBy);
                 }
 
-                updateUserList(null);
+                updateUserList(true);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+            }
+        });
+    }
+
+    private void initializeDepartmentFilterSpinner() {
+        String[] options = Utils.createOptions(
+                User.query(this.databasePath)
+                    .select("DISTINCT department")
+                    .pluck("department")
+        );
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                this,
+                android.R.layout.simple_spinner_item,
+                options
+        );
+
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        this.departmentFilterSpinner.setAdapter(adapter);
+
+        this.departmentFilterSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
+                departmentFilter = options[position];
+
+                updateUserList(true);
             }
 
             @Override
@@ -224,14 +258,16 @@ public class MainActivity extends AppCompatActivity {
 
     @SuppressLint("NotifyDataSetChanged")
     @Contract(pure = true)
-    private void updateUserList(@Nullable List<Model> users) {
-        if (users == null) {
-            users = User.query(this.databasePath)
-                        .orderBy(this.sortByColumn, this.sortByDirection)
-                        .get();
+    private void updateUserList(boolean fetchData) {
+        if (fetchData) {
+            this.students = User.query(this.databasePath)
+                                .whenWhere(!Utils.isDefaultOption(this.departmentFilter), (query) -> query
+                                        .where("department", this.departmentFilter))
+                                .orderBy(this.sortByColumn, this.sortByDirection)
+                                .get();
         }
 
-        this.userAdapter.updateData(users);
+        this.userAdapter.updateData(this.students);
         this.userAdapter.notifyDataSetChanged();
     }
 }

@@ -2,6 +2,8 @@ package ivk.danilo.v6.Models.Base;
 
 import android.database.Cursor;
 
+import androidx.annotation.NonNull;
+
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -31,9 +33,7 @@ public class Model extends Eloquent {
     @NotNull
     @Contract(" -> new")
     public List<Model> get() {
-        if (this.sqLiteDatabase == null) {
-            throw new MissingDatabaseException(this.getClass());
-        }
+       this.validateDatabaseConnection();
 
         if (this.queryBuilder == null) {
             this.queryBuilder = new QueryBuilder(this);
@@ -41,6 +41,7 @@ public class Model extends Eloquent {
 
         List<Model> results = new ArrayList<>();
 
+        assert this.sqLiteDatabase != null;
         Cursor cursor = this.sqLiteDatabase.rawQuery(this.queryBuilder.toString(), null);
 
         if (cursor.moveToFirst()) {
@@ -57,14 +58,13 @@ public class Model extends Eloquent {
 
     @NotNull
     @Contract("_ -> this")
-    public Model create(Attributes attributes) {
-        if (this.sqLiteDatabase == null) {
-            throw new MissingDatabaseException(this.getClass());
-        }
+    public Model create(@NonNull Attributes attributes) {
+        this.validateDatabaseConnection();
 
+        assert this.sqLiteDatabase != null;
         Long id = this.sqLiteDatabase.insert(this.getTable(), null, attributes.toContentValues());
 
-        attributes.set(this.getPrimaryKey(), id);
+        attributes.set(getPrimaryKey(), id);
 
         this.sqLiteDatabase.close();
 
@@ -73,13 +73,12 @@ public class Model extends Eloquent {
 
     @NotNull
     @Contract("_ -> this")
-    public Model update(Attributes attributes) {
-        if (this.sqLiteDatabase == null) {
-            throw new MissingDatabaseException(this.getClass());
-        }
+    public Model update(@NotNull Attributes attributes) {
+        this.validateDatabaseConnection();
 
         attributes.set("updated_at", new Date().getTime());
 
+        assert this.sqLiteDatabase != null;
         this.sqLiteDatabase.update(this.getTable(), attributes.toContentValues(), this.getWhereClauseForThisModel(), null);
 
         this.sqLiteDatabase.close();
@@ -89,17 +88,46 @@ public class Model extends Eloquent {
 
     @Contract(pure = true)
     public void delete() {
-        if (this.sqLiteDatabase == null) {
-            throw new MissingDatabaseException(this.getClass());
-        }
+        this.validateDatabaseConnection();
 
+        assert this.sqLiteDatabase != null;
         this.sqLiteDatabase.delete(this.getTable(), this.getWhereClauseForThisModel(), null);
 
         this.sqLiteDatabase.close();
+    }
+
+    public String[] pluck(@NotNull String column) {
+        this.validateDatabaseConnection();
+
+        if (this.queryBuilder == null) {
+            this.queryBuilder = new QueryBuilder(this);
+        }
+
+        List<String> results = new ArrayList<>();
+
+        assert this.sqLiteDatabase != null;
+        Cursor cursor = this.sqLiteDatabase.rawQuery(this.queryBuilder.toString(), null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                results.add(cursor.getString(cursor.getColumnIndexOrThrow(column)));
+            } while (cursor.moveToNext());
+        }
+
+        cursor.close();
+        this.sqLiteDatabase.close();
+
+        return results.toArray(new String[0]);
     }
     // </editor-fold> CRUD functions
 
     protected Model mapCursor(Cursor cursor) {
         return new Model();
+    }
+
+    protected void validateDatabaseConnection() {
+        if (this.sqLiteDatabase == null) {
+            throw new MissingDatabaseException(this.getClass());
+        }
     }
 }
