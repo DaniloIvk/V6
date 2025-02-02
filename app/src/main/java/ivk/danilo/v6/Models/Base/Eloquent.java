@@ -27,18 +27,18 @@ public class Eloquent {
     }
 
     @NotNull
+    @Contract(pure = true)
+    public static String getPrimaryKey() {
+        return "id";
+    }
+
+    @NotNull
     public String getTable() throws MissingTableException {
         throw new MissingTableException(Eloquent.class);
     }
 
-    @NotNull
-    @Contract(pure = true)
-    public String getPrimaryKey() {
-        return "id";
-    }
-
     public Attribute id() throws MissingValueException {
-        return this.getAttribute(this.getPrimaryKey());
+        return this.getAttribute(getPrimaryKey());
     }
 
     public Attribute getAttribute(@NotNull String name) throws MissingValueException {
@@ -52,7 +52,7 @@ public class Eloquent {
 
     public String getWhereClauseForThisModel() {
         return new QueryBuilder()
-                .where(this.getPrimaryKey(), this.id().toLong())
+                .where(getPrimaryKey(), this.id().toLong())
                 .toString();
     }
 }

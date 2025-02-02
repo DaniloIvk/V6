@@ -2,6 +2,8 @@ package ivk.danilo.v6;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -13,22 +15,26 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.ArrayList;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.List;
 
 import ivk.danilo.v6.Adapters.UserAdapter;
 import ivk.danilo.v6.Models.Base.Attribute.Attribute;
 import ivk.danilo.v6.Models.Base.Model;
+import ivk.danilo.v6.Models.Base.Utils;
 import ivk.danilo.v6.Models.User;
-import ivk.danilo.v6.Sqlite.DatabaseHelper;
 
 public class MainActivity extends AppCompatActivity {
-    private List<Model> users = new ArrayList<>();
-    private DatabaseHelper databaseHelper = null;
+    private String databasePath = null;
+    private String sortByColumn = User.getPrimaryKey();
+    private String sortByDirection = "ASC";
     private EditText studentNameEditText = null;
     private EditText studentAgeEditText = null;
     private EditText studentGpaEditText = null;
     private Spinner studentDepartmentSpinner = null;
+    private Spinner sortBySpinner = null;
     private Button addStudentButton = null;
     private Button showAllStudentsButton = null;
     private Button showTopStudentsButton = null;
@@ -43,52 +49,24 @@ public class MainActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         this.setContentView(R.layout.activity_main);
 
+        this.databasePath = this.getFilesDir().getPath();
+
         this.initializeViews();
 
-        ArrayAdapter<String> studentDepartmentSpinnerAdapter = new ArrayAdapter<>(
-                this,
-                android.R.layout.simple_spinner_item,
-                new String[]{"SRT", "KOT", "ITS"}
-        );
-
-        studentDepartmentSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
-        this.studentDepartmentSpinner.setAdapter(studentDepartmentSpinnerAdapter);
-
-        this.usersRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-
-        this.userAdapter = new UserAdapter(this.users);
-
-        this.usersRecyclerView.setAdapter(this.userAdapter);
-
         try {
+            this.usersRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+            List<Model> users = User.query(this.databasePath)
+                                    .get();
+
+            this.userAdapter = new UserAdapter(users);
+
+            this.usersRecyclerView.setAdapter(this.userAdapter);
+
             this.initializeComponents();
-
-            this.databaseHelper = new DatabaseHelper(this);
-            this.databaseHelper.copyDatabase();
-
-            if (this.databaseHelper.openDatabase() == null) {
-                Toast.makeText(this, R.string.error_opening_database, Toast.LENGTH_LONG).show();
-
-                this.databaseHelper.close();
-
-                return;
-            }
-
-            this.users = User.query(this.getFilesDir().getPath()).get();
-
-            this.userAdapter.updateData(this.users);
-
-            this.userAdapter.notifyDataSetChanged();
         } catch (Exception exception) {
             Toast.makeText(this, exception.getMessage(), Toast.LENGTH_LONG).show();
         }
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        this.databaseHelper = null;
     }
 
     private void initializeComponents() {
@@ -96,6 +74,9 @@ public class MainActivity extends AppCompatActivity {
         this.initializeShowAllStudentsButton();
         this.initializeTopStudentsButton();
         this.initializeResetInputFieldsButton();
+
+        this.initializeStudentDepartmentSpinner();
+        this.initializeSortBySpinner();
     }
 
     private void initializeViews() {
@@ -109,9 +90,11 @@ public class MainActivity extends AppCompatActivity {
         this.showTopStudentsButton = findViewById(R.id.show_top_students);
         this.resetInputFieldsButton = findViewById(R.id.reset_fields);
 
+        this.sortBySpinner = findViewById(R.id.sort_by);
         this.usersRecyclerView = findViewById(R.id.students);
     }
 
+    @SuppressLint("CheckResult")
     private void initializeAddStudentButton() {
         this.addStudentButton.setOnClickListener(v -> {
             String name = this.studentNameEditText.getEditableText().toString().trim();
@@ -128,17 +111,17 @@ public class MainActivity extends AppCompatActivity {
                 int age = Integer.parseInt(ageText);
                 double gpa = Double.parseDouble(gpaText);
 
-                Model newUser = User.query(this.getFilesDir().getPath()).create(
-                        new Attribute("name", name),
-                        new Attribute("age", age),
-                        new Attribute("department", department),
-                        new Attribute("gpa", gpa)
-                );
+                User.query(this.databasePath)
+                    .create(
+                            new Attribute("name", name),
+                            new Attribute("age", age),
+                            new Attribute("department", department),
+                            new Attribute("gpa", gpa)
+                    );
 
                 Toast.makeText(this, R.string.student_added_successfully, Toast.LENGTH_SHORT).show();
 
-                this.users.add(newUser);
-                userAdapter.notifyItemInserted(this.users.size() - 1);
+                this.updateUserList(null);
             } catch (NumberFormatException e) {
                 Toast.makeText(this, R.string.age_or_gpa_not_a_number, Toast.LENGTH_SHORT).show();
             } finally {
@@ -151,12 +134,7 @@ public class MainActivity extends AppCompatActivity {
     private void initializeShowAllStudentsButton() {
         this.showAllStudentsButton.setOnClickListener(v -> {
             try {
-                List<Model> allUsers = User.query(this.getFilesDir().getPath())
-                                           .get();
-
-                this.userAdapter.updateData(allUsers);
-                this.userAdapter.notifyDataSetChanged();
-                this.usersRecyclerView.setAdapter(this.userAdapter);
+                this.updateUserList(null);
             } catch (Exception exception) {
                 Toast.makeText(this, exception.getMessage(), Toast.LENGTH_SHORT).show();
             }
@@ -167,7 +145,7 @@ public class MainActivity extends AppCompatActivity {
     private void initializeTopStudentsButton() {
         this.showTopStudentsButton.setOnClickListener(v -> {
             try {
-                List<Model> topStudents = User.query(this.getFilesDir().getPath())
+                List<Model> topStudents = User.query(this.databasePath)
                                               .orderByDesc("gpa")
                                               .limit(3)
                                               .get();
@@ -189,10 +167,71 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private void initializeStudentDepartmentSpinner() {
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                this,
+                android.R.layout.simple_spinner_item,
+                new String[]{"SRT", "KOT", "ITS"}
+        );
+
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        this.studentDepartmentSpinner.setAdapter(adapter);
+    }
+
+    private void initializeSortBySpinner() {
+        String[] options = Utils.createSortableOptions("Name", "Age", "GPA", "Department");
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                this,
+                android.R.layout.simple_spinner_item,
+                options
+        );
+
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        this.sortBySpinner.setAdapter(adapter);
+
+        this.sortBySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @SuppressLint("NotifyDataSetChanged")
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
+                String option = options[position];
+
+                if (Utils.isDefaultSortableOption(option)) {
+                    sortByColumn = User.getPrimaryKey();
+                    sortByDirection = "ASC";
+                } else {
+                    sortByColumn = Utils.getSortableColumn(option);
+                    sortByDirection = Utils.getSortableOrder(option);
+                }
+
+                updateUserList(null);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+            }
+        });
+    }
+
     private void resetInputFields() {
         this.studentNameEditText.setText("");
         this.studentAgeEditText.setText("");
         this.studentGpaEditText.setText("");
         this.studentDepartmentSpinner.setSelection(0);
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    @Contract(pure = true)
+    private void updateUserList(@Nullable List<Model> users) {
+        if (users == null) {
+            users = User.query(this.databasePath)
+                        .orderBy(this.sortByColumn, this.sortByDirection)
+                        .get();
+        }
+
+        this.userAdapter.updateData(users);
+        this.userAdapter.notifyDataSetChanged();
     }
 }

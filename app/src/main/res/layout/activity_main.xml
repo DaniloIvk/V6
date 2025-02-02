@@ -235,6 +235,38 @@
         app:layout_constraintTop_toBottomOf="@id/add_student"
         app:layout_constraintWidth_max="240dp" />
 
+    <TextView
+        android:id="@+id/sort_by_label"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:foregroundGravity="left|center_vertical"
+        android:gravity="center"
+        android:text="@string/sort_by"
+        android:textAlignment="center"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toStartOf="@id/sort_by"
+        app:layout_constraintHorizontal_weight="0.2"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/show_all_users" />
+
+    <Spinner
+        android:id="@+id/sort_by"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:foregroundGravity="right|center_vertical"
+        android:textAlignment="center"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_weight="0.8"
+        app:layout_constraintStart_toEndOf="@id/sort_by_label"
+        app:layout_constraintTop_toBottomOf="@id/show_all_users" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/students"
         android:layout_width="0dp"
@@ -245,6 +277,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/reset_fields" />
+        app:layout_constraintTop_toBottomOf="@id/sort_by_label" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

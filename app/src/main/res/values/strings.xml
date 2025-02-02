@@ -24,4 +24,5 @@
     <string name="show_top_students">Show top 3</string>
     <string name="show_all">Show all</string>
     <string name="reset">Reset</string>
+    <string name="sort_by">Sort by:</string>
 </resources>

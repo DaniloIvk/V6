@@ -383,14 +383,14 @@ public final class QueryBuilder implements Queryable {
     @NotNull
     @ReturnThis
     @Contract("_, _ -> this")
-    private QueryBuilder orderBy(@NonNull String order, @NonNull String direction) {
+    public QueryBuilder orderBy(@NonNull String column, @NonNull String direction) {
         if (this.orderBy == null) {
             this.orderBy = new StringBuilder("\nORDER BY ");
         } else {
             this.orderBy.append(", ");
         }
 
-        this.orderBy.append(order)
+        this.orderBy.append(column)
                     .append(" ")
                     .append(direction);
 
@@ -399,15 +399,15 @@ public final class QueryBuilder implements Queryable {
 
     @NotNull
     @Contract("_ -> this")
-    public QueryBuilder orderByAsc(@NonNull String order) {
-        return this.orderBy(order, "ASC");
+    public QueryBuilder orderByAsc(@NonNull String column) {
+        return this.orderBy(column, "ASC");
     }
     // </editor-fold> Order by clause functions
 
     @NotNull
     @Contract("_ -> this")
-    public QueryBuilder orderByDesc(@NonNull String order) {
-        return this.orderBy(order, "DESC");
+    public QueryBuilder orderByDesc(@NonNull String column) {
+        return this.orderBy(column, "DESC");
     }
     // </editor-fold> Limit clause functions
 

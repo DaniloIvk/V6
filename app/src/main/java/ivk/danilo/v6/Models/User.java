@@ -21,6 +21,10 @@ public final class User extends Model {
         super(databasePath);
     }
 
+    public User() {
+        super();
+    }
+
     @NotNull
     @Contract("_ -> new")
     public static QueryBuilder query(@NotNull String databasePath) {
